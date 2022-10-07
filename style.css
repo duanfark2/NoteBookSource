@@ -69,11 +69,14 @@ body{
 }
 
 #file-name #fileName{
+    margin-left: 14px;
     border: 0px;
     height: 24px;
     width: 250px;
     padding-left: 3px;
-    font-size: 18px;
+    font-size: 16px;
+    font-family: 华文楷体;
+    font-weight: bold;
 }
 
 #file-name #fileName:hover{

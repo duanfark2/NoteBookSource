@@ -24,7 +24,7 @@ let md = new MarkDownIt(`default`, {
 let Files = [];//所有记事本文件存放的数组，其中元素为对象格式
 
 let fileTplate = {
-    fileName: "未命名",
+    fileName: "未命名.md",
     createDate: "2022/9/22",
     updateDate: "2022/9/22",
     updateTime: "11:56",
@@ -35,7 +35,7 @@ let fileTplate = {
 
 // let Htmll = md.render(mark1); e.g.How to use Markdown-it
 
-let initNewFile = (filename = "未命名") => {
+let initNewFile = (filename = "未命名.md") => {
     //新建文件
     //新建文件操作：新建一个file对象，并保存到文件对象数组中
     let newFile = JSON.parse(JSON.stringify(fileTplate));
@@ -50,6 +50,37 @@ let initNewFile = (filename = "未命名") => {
 
     nowEditingFile = Files.length - 1;
     nowEditingCube = 0;
+}
+
+let renderTheFileName = ()=>{
+    fileName.value = Files[nowEditingFile].fileName;
+}
+
+let unfocusCube = (cubeSerial)=>{
+    //unfocus时并不取消该元素的可编辑性
+    let textCubes = document.getElementsByClassName('textCube');
+    textCubes[cubeSerial].getElementsByClassName('inlineEditBar')[0].style.display = 'none';
+    textCubes[cubeSerial].getElementsByClassName('highLighted')[0].style.display = 'none';
+}
+
+let focusCube =(cubeSerial)=>{
+    if(nowEditingCube!=cubeSerial){
+        unfocusCube(nowEditingCube);
+        let textCubes = document.getElementsByClassName('textCube');
+        textCubes[cubeSerial].getElementsByClassName('inlineEditBar')[0].style.display = 'flex';
+        textCubes[cubeSerial].getElementsByClassName('highLighted')[0].style.display = 'flex';
+        textCubes[cubeSerial].getElementsByClassName('typeCube')[0].focus();
+        nowEditingCube = cubeSerial;
+    }else {
+        let textCubes = document.getElementsByClassName('textCube');
+        textCubes[cubeSerial].getElementsByClassName('inlineEditBar')[0].style.display = 'flex';
+        textCubes[cubeSerial].getElementsByClassName('highLighted')[0].style.display = 'flex';
+        textCubes[cubeSerial].getElementsByClassName('typeCube')[0].focus();
+    }
+}
+
+let callFocusCube =(e)=>{
+
 }
 
 let initTextCube = (cubeId, content = '') => {
@@ -135,6 +166,9 @@ let addTextCube = (serialNumber, content = '') => {
     }
 }
 
+
+
+
 let addCubeInLine = (e,directe = null) => {
     //点击分割线上的加号的回调函数
     let target = e.target;
@@ -218,8 +252,11 @@ let deleteCube = (e,directe = null) => {
 let runCode = (e, directe = null)=>{
     let target = directe?directe:e.target.parentNode.parentNode;
     let originText = target.getElementsByClassName('typeCube')[0].innerText;
+    if(!originText.contentEditable){
     let transText = md.render(originText);
     target.getElementsByClassName('typeCube')[0].innerHTML = transText;
+    target.getElementsByClassName('typeCube')[0].contentEditable = 'false';
+    }
 }
 
 let firstTimeInitialize = () => {
@@ -229,6 +266,8 @@ let firstTimeInitialize = () => {
     //3具体render：将文件名填入顶框；将文件列表显示在左侧栏；在中间内容新建一个文本框并focus；更新右边栏序号；
     initNewFile();
     addTextCube(0);
+    renderTheFileName();
+    focusCube(0);
 }
 
 let fileName = document.getElementById('fileName');
@@ -248,7 +287,7 @@ document.body.onmousedown = (e) => {
     if (e.target.id != 'fileName') {
         if (haveClickedFileInput) {
             haveClickedFileInput = false;
-            Files[nowEditing].fileName = fileName.value;//修改记录的文件名
+            Files[nowEditingFile].fileName = fileName.value;//修改记录的文件名
             console.log("已保存标题", Files[nowEditing].fileName);
         }
     } else {
