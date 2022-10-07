@@ -257,6 +257,15 @@ body{
     margin-top: 64px;
     /*可以改成padding*/
     border-right: 1px solid #dadada;
+    background-color: white;
+    z-index: 1000;
+    transition-duration: 0.2s;
+    transition-property: width;
+}
+
+#leftSideBar:hover{
+    width: 200px;
+
 }
 
 #textArea{

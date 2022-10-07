@@ -52,26 +52,32 @@ let initNewFile = (filename = "未命名.md") => {
     nowEditingCube = 0;
 }
 
-let renderTheFileName = ()=>{
+let renderTheFileName = () => {
+    nowEditingFile = Number(nowEditingFile);
+    nowEditingCube = Number(nowEditingCube);
     fileName.value = Files[nowEditingFile].fileName;
 }
 
-let unfocusCube = (cubeSerial)=>{
+let unfocusCube = (cubeSerial) => {
     //unfocus时并不取消该元素的可编辑性
     let textCubes = document.getElementsByClassName('textCube');
+    nowEditingFile = Number(nowEditingFile);
+    nowEditingCube = Number(nowEditingCube);
     textCubes[cubeSerial].getElementsByClassName('inlineEditBar')[0].style.display = 'none';
     textCubes[cubeSerial].getElementsByClassName('highLighted')[0].style.display = 'none';
 }
 
-let focusCube =(cubeSerial)=>{
-    if(nowEditingCube!=cubeSerial){
+let focusCube = (cubeSerial) => {
+    nowEditingFile = Number(nowEditingFile);
+    nowEditingCube = Number(nowEditingCube);
+    if (nowEditingCube != cubeSerial) {
         unfocusCube(nowEditingCube);
         let textCubes = document.getElementsByClassName('textCube');
         textCubes[cubeSerial].getElementsByClassName('inlineEditBar')[0].style.display = 'flex';
         textCubes[cubeSerial].getElementsByClassName('highLighted')[0].style.display = 'flex';
         textCubes[cubeSerial].getElementsByClassName('typeCube')[0].focus();
         nowEditingCube = cubeSerial;
-    }else {
+    } else {
         let textCubes = document.getElementsByClassName('textCube');
         textCubes[cubeSerial].getElementsByClassName('inlineEditBar')[0].style.display = 'flex';
         textCubes[cubeSerial].getElementsByClassName('highLighted')[0].style.display = 'flex';
@@ -79,8 +85,53 @@ let focusCube =(cubeSerial)=>{
     }
 }
 
-let callFocusCube =(e)=>{
+let saveToFile = (text) => {
+    nowEditingFile = Number(nowEditingFile);
+    nowEditingCube = Number(nowEditingCube);
+    Files[nowEditingFile].contents[nowEditingCube] = text;
+}
 
+let changeToMark = (target) => {
+    //将html重新转回md源文件
+    let cubeId = target.parentNode.dataset.cubeId
+    nowEditingFile = Number(nowEditingFile);
+    nowEditingCube = Number(nowEditingCube);
+
+    target.innerHTML = '';
+    target.innerText = Files[nowEditingFile].contents[cubeId];
+    window.getSelection ? window.getSelection().removeAllRanges() : document.selection.empty();
+    target.focus()
+}
+
+let callFocusCube = (e) => {
+    let target = e.target;
+    while (target.className != 'typeCube') {
+        target = target.parentNode;
+    }
+    console.log(target)
+    let number = target.parentNode.dataset.cubeId;
+    let textCubes = document.getElementsByClassName('textCube');
+    nowEditingFile = Number(nowEditingFile);
+    nowEditingCube = Number(nowEditingCube);
+    if (target.contentEditable == 'false') {
+        // console.log('enen');
+        focusCube(number);
+        e.preventDefault();
+        cloc++;
+        setTimeout(() => {
+            cloc = 0;
+        }, 500)
+        if (cloc == 2) {
+            target.contentEditable = 'true';
+            changeToMark(target);
+        }
+    } else {
+        if (document.getElementsByClassName('typeCube')[nowEditingCube].contentEditable == 'true') {
+            saveToFile(document.getElementsByClassName('typeCube')[nowEditingCube].innerText);
+            // console.log('yes')
+        }
+        focusCube(number);
+    }
 }
 
 let initTextCube = (cubeId, content = '') => {
@@ -103,6 +154,7 @@ let initTextCube = (cubeId, content = '') => {
     typeCube.innerText = content;
     typeCube.className = 'typeCube';
     typeCube.contentEditable = 'true';
+    typeCube.addEventListener('click', callFocusCube);
     textCube.appendChild(typeCube);
     let editBar = document.createElement('div');
     editBar.className = 'inlineEditBar';
@@ -140,6 +192,11 @@ let addTextCube = (serialNumber, content = '') => {
     let textArea = document.getElementById('textArea');
     let splitAreas = document.getElementsByClassName('splitArea');
     let textCubes = document.getElementsByClassName('textCube');
+    nowEditingFile = Number(nowEditingFile);
+    nowEditingCube = Number(nowEditingCube);
+
+    Files[nowEditingFile].contents.splice(serialNumber, 0, '');
+
     if (!textCubes[serialNumber]) {
         // console.log('yes');
         if (!splitAreas[serialNumber]) {
@@ -167,25 +224,38 @@ let addTextCube = (serialNumber, content = '') => {
 }
 
 
-
-
-let addCubeInLine = (e,directe = null) => {
+let addCubeInLine = (e, directe = null) => {
     //点击分割线上的加号的回调函数
     let target = e.target;
     let snumber;
+    nowEditingFile = Number(nowEditingFile);
+    nowEditingCube = Number(nowEditingCube);
     if (target.className == 'addCubeBtn') {
         snumber = target.parentNode.dataset.splitId;
         // console.log(snumber);
     }
+    if (snumber <= nowEditingCube) {
+        nowEditingCube++;
+    }
     addTextCube(snumber);
+
+    console.log(Files[nowEditingFile].contents);
 }
 
-let moveUpCube = (e,directe = null) => {
+let moveUpCube = (e, directe = null) => {
     //点击将单元格上移
     console.log('wdnmd')
-    let target = e.target;
-    let thisTextCube = target.parentNode.parentNode;
+    let target;
+    let thisTextCube;
+    if (directe == null) {
+        target = e.target;
+        thisTextCube = target.parentNode.parentNode;
+    } else {
+        thisTextCube = document.getElementsByClassName('textCube')[directe];
+    }
     let textCubes = document.getElementsByClassName('textCube');
+    nowEditingFile = Number(nowEditingFile);
+    nowEditingCube = Number(nowEditingCube);
     if (thisTextCube.dataset.cubeId == 0) {
         return
     } else {
@@ -193,21 +263,35 @@ let moveUpCube = (e,directe = null) => {
         let textArea = thisTextCube.parentNode;
         let preTextCube = textCubes[cubeId - 1];
         let splitAreas = document.getElementsByClassName('splitArea');
+        console.log(nowEditingCube)
+        let temp = Files[nowEditingFile].contents[nowEditingCube - 1]
+        Files[nowEditingFile].contents[nowEditingCube - 1] = Files[nowEditingFile].contents[nowEditingCube];
+        Files[nowEditingFile].contents[nowEditingCube] = temp;
         thisTextCube.dataset.cubeId--;
         thisTextCube.getElementsByClassName('cubeid')[0].innerText = '[' + thisTextCube.dataset.cubeId + ']:'
         preTextCube.dataset.cubeId++;
         preTextCube.getElementsByClassName('cubeid')[0].innerText = '[' + preTextCube.dataset.cubeId + ']:';
         textArea.insertBefore(thisTextCube, preTextCube);
         textArea.insertBefore(splitAreas[cubeId], preTextCube);
+        nowEditingCube--;
     }
+    console.log(Files[nowEditingFile].contents);
 }
 
-let moveDownCube = (e,directe = null) => {
+let moveDownCube = (e, directe = null) => {
     //点击将单元格下移
     // console.log('wdnmd')
-    let target = e.target;
-    let thisTextCube = target.parentNode.parentNode;
+    let target;
+    let thisTextCube;
+    if (directe == null) {
+        target = e.target;
+        thisTextCube = target.parentNode.parentNode;
+    } else {
+        thisTextCube = document.getElementsByClassName('textCube')[directe];
+    }
     let textCubes = document.getElementsByClassName('textCube');
+    nowEditingFile = Number(nowEditingFile);
+    nowEditingCube = Number(nowEditingCube);
     if (thisTextCube.dataset.cubeId == textCubes.length - 1) {
         // console.log('last cube')
         return
@@ -217,46 +301,93 @@ let moveDownCube = (e,directe = null) => {
         let textArea = thisTextCube.parentNode;
         let nexTextCube = textCubes[cubeId + 1];
         let splitAreas = document.getElementsByClassName('splitArea');
+        let temp = Files[nowEditingFile].contents[Number(nowEditingCube) + 1];
+        Files[nowEditingFile].contents[nowEditingCube + 1] = Files[nowEditingFile].contents[nowEditingCube];
+        Files[nowEditingFile].contents[nowEditingCube] = temp;
         thisTextCube.dataset.cubeId++;
         thisTextCube.getElementsByClassName('cubeid')[0].innerText = '[' + thisTextCube.dataset.cubeId + ']:'
         nexTextCube.dataset.cubeId--;
         nexTextCube.getElementsByClassName('cubeid')[0].innerText = '[' + nexTextCube.dataset.cubeId + ']:';
         textArea.insertBefore(nexTextCube, thisTextCube);
         textArea.insertBefore(splitAreas[cubeId + 1], thisTextCube);
+        nowEditingCube++;
     }
+    console.log(Files[nowEditingFile].contents);
 }
 
-let copyCube = (e,directe = null) => {
-    let target = e.target.parentNode.parentNode;
+let copyCube = (e, directe = null) => {
+    let target;
     let snumber;
+    if (directe == null) {
+        target = e.target.parentNode.parentNode;
+    } else {
+        target = document.getElementsByClassName('textCube')[directe]
+    }
+    nowEditingFile = Number(nowEditingFile);
+    nowEditingCube = Number(nowEditingCube);
+
+    console.log(nowEditingCube)
+    Files[nowEditingFile].contents.splice(nowEditingCube, 0, Files[nowEditingFile].contents[nowEditingCube]);
+
     let textInLast = target.getElementsByClassName('typeCube')[0].innerText;
-    snumber = target.dataset.cubeId;
-    addTextCube(snumber, textInLast);
+    snumber = Number(target.dataset.cubeId);
+    addTextCube(snumber + 1, textInLast);
+
+    console.log(Files[nowEditingFile].contents);
 }
 
-let deleteCube = (e,directe = null) => {
-    let target = e.target.parentNode.parentNode;
+let deleteCube = (e, directe = null) => {
+    let target;
+    if (directe == null) {
+        target = e.target;
+        console.log(e)
+        target = target.parentNode.parentNode;
+    } else {
+        target = document.getElementsByClassName('textCube')[directe];
+    }
     let cubeId = Number(target.dataset.cubeId);
     let textCubes = document.getElementsByClassName('textCube');
     let splitAreas = document.getElementsByClassName('splitArea');
-    for (let i = cubeId+1; i < textCubes.length; i++) {
+    nowEditingFile = Number(nowEditingFile);
+    nowEditingCube = Number(nowEditingCube);
+
+    console.log(nowEditingCube)
+    Files[nowEditingFile].contents.splice(nowEditingCube, 1);
+
+    for (let i = cubeId + 1; i < textCubes.length; i++) {
         textCubes[i].dataset.cubeId--;
         let cubeid = textCubes[i].getElementsByClassName('cubeid')[0];
         cubeid.innerText = '[' + textCubes[i].dataset.cubeId + ']:';
         splitAreas[i + 1].dataset.splitId--;
     }
-    splitAreas[cubeId+1].remove();
+    splitAreas[cubeId + 1].remove();
     target.remove();
+    nowEditingCube = null;
+
+    console.log(Files[nowEditingFile].contents);
 }
 
-let runCode = (e, directe = null)=>{
-    let target = directe?directe:e.target.parentNode.parentNode;
-    let originText = target.getElementsByClassName('typeCube')[0].innerText;
-    if(!originText.contentEditable){
-    let transText = md.render(originText);
-    target.getElementsByClassName('typeCube')[0].innerHTML = transText;
-    target.getElementsByClassName('typeCube')[0].contentEditable = 'false';
+let runCode = (e, directe = null) => {
+
+    nowEditingFile = Number(nowEditingFile);
+    nowEditingCube = Number(nowEditingCube);
+    let target;
+    if (directe ==null) {
+        target = e.target;
+        target = target.parentNode.parentNode;
+    } else {
+        target = document.getElementsByClassName('textCube')[directe];
     }
+    let originText = target.getElementsByClassName('typeCube')[0].innerText;
+
+    Files[nowEditingFile].contents[target.dataset.cubeId] = originText;
+    if (originText.contentEditable!='false') {
+        //待改
+        let transText = md.render(originText);
+        target.getElementsByClassName('typeCube')[0].innerHTML = transText;
+        target.getElementsByClassName('typeCube')[0].contentEditable = 'false';
+    }
+    console.log(Files[nowEditingFile].contents);
 }
 
 let firstTimeInitialize = () => {
@@ -278,63 +409,83 @@ let haveClickedFileInput = false;//是否点击了文件命名框
 let ifFopOpen = [false, false, false];
 let imgsrc = ['img/arrow_up.svg', 'img/arrow_down.svg', 'img/content_copy.svg', 'img/delete.svg', 'img/play_arrow.svg']
 let clickEvents = [moveUpCube, moveDownCube, copyCube, deleteCube, runCode]
+let cloc = 0;//双击时钟记录
 
 //==================================⬆变/常量/定义⬇执行/监听语句=========================
 
 firstTimeInitialize();
 
-document.body.onmousedown = (e) => {
-    if (e.target.id != 'fileName') {
-        if (haveClickedFileInput) {
-            haveClickedFileInput = false;
-            Files[nowEditingFile].fileName = fileName.value;//修改记录的文件名
-            console.log("已保存标题", Files[nowEditing].fileName);
-        }
-    } else {
-        haveClickedFileInput = true;
-    }
-    if (e.target.className == 'options') {
-        console.log(e.target.id);
-        let target = e.target;
-        let numOfOption = 0;
-        while (target != null) {
-            target = target.previousSibling;
-            numOfOption++;
-            //获取当前选项是第几个
-        }
-        numOfOption = numOfOption / 2;
-        let opall = document.querySelectorAll('.optionAll');
-        //二级菜单栏列表
-        let ops = document.querySelectorAll('.options');
-        //一级菜单列表
-        console.log(numOfOption);
-        if (ifFopOpen[numOfOption]) {
-            //如果点击菜单栏时该菜单栏是开启状态，则关闭所有菜单栏
-            ifFopOpen = [false, false, false];
-            ifFopOpen[numOfOption] = false;
-            for (let i = 0; i < 3; i++) {
-                opall[i].style.display = 'none';
-                ops[i].style.cssText = '';
-            }
-            console.log('close')
-        } else {
-            //如果点击菜单栏时该菜单栏不是打开状态，则关闭其他菜单栏，打开该菜单栏
-            ifFopOpen = [false, false, false];
-            ifFopOpen[numOfOption] = true;
-            for (let i = 0; i < 3; i++) {
-                opall[i].style.display = 'none';
-                ops[i].style.cssText = '';
+let topEIcon = document.getElementsByClassName('topEdit');
+let Icon
+console.log(topEIcon);
+topEIcon[0].addEventListener('click', () => {
+    clickEvents[0]('', nowEditingCube);
+})
+topEIcon[1].addEventListener('click', () => {
+    clickEvents[1]('', nowEditingCube);
+})
+topEIcon[2].addEventListener('click', () => {
+    clickEvents[2]('', nowEditingCube);
+})
+topEIcon[3].addEventListener('click', () => {
+    clickEvents[3]('', nowEditingCube);
+})
+topEIcon[4].addEventListener('click', () => {
+    clickEvents[4]('', nowEditingCube);
+})
 
+    document.body.onmousedown = (e) => {
+        if (e.target.id != 'fileName') {
+            if (haveClickedFileInput) {
+                haveClickedFileInput = false;
+                Files[nowEditingFile].fileName = fileName.value;//修改记录的文件名
+                console.log("已保存标题", Files[nowEditing].fileName);
             }
-            e.target.style.cssText = `
+        } else {
+            haveClickedFileInput = true;
+        }
+        if (e.target.className == 'options') {
+            console.log(e.target.id);
+            let target = e.target;
+            let numOfOption = 0;
+            while (target != null) {
+                target = target.previousSibling;
+                numOfOption++;
+                //获取当前选项是第几个
+            }
+            numOfOption = numOfOption / 2;
+            let opall = document.querySelectorAll('.optionAll');
+            //二级菜单栏列表
+            let ops = document.querySelectorAll('.options');
+            //一级菜单列表
+            console.log(numOfOption);
+            if (ifFopOpen[numOfOption]) {
+                //如果点击菜单栏时该菜单栏是开启状态，则关闭所有菜单栏
+                ifFopOpen = [false, false, false];
+                ifFopOpen[numOfOption] = false;
+                for (let i = 0; i < 3; i++) {
+                    opall[i].style.display = 'none';
+                    ops[i].style.cssText = '';
+                }
+                console.log('close')
+            } else {
+                //如果点击菜单栏时该菜单栏不是打开状态，则关闭其他菜单栏，打开该菜单栏
+                ifFopOpen = [false, false, false];
+                ifFopOpen[numOfOption] = true;
+                for (let i = 0; i < 3; i++) {
+                    opall[i].style.display = 'none';
+                    ops[i].style.cssText = '';
+
+                }
+                e.target.style.cssText = `
             background-color: white;
             border-radius: 0;
             border: 1px solid #dadada;
             box-shadow: 0px -4px 10px 0px rgba(0,0,0,0.2);
             `
-            console.log(e.target.parentNode);
-            opall[numOfOption - 1].style.display = 'flex';
-            console.log('open')
+                console.log(e.target.parentNode);
+                opall[numOfOption - 1].style.display = 'flex';
+                console.log('open')
+            }
         }
     }
-}
