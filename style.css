@@ -259,14 +259,14 @@ body{
     border-right: 1px solid #dadada;
     background-color: white;
     z-index: 1000;
-    transition-duration: 0.2s;
-    transition-property: width;
+    /*transition-duration: 0.2s;*/
+    /*transition-property: width;*/
 }
 
-#leftSideBar:hover{
-    width: 200px;
+/*#leftSideBar:hover{*/
+/*    width: 200px;*/
 
-}
+/*}*/
 
 #textArea{
     position: relative;

@@ -54,7 +54,9 @@ let initNewFile = (filename = "未命名.md") => {
 
 let renderTheFileName = () => {
     nowEditingFile = Number(nowEditingFile);
-    nowEditingCube = Number(nowEditingCube);
+    if (nowEditingCube) {
+        nowEditingCube = Number(nowEditingCube);
+    }
     fileName.value = Files[nowEditingFile].fileName;
 }
 
@@ -62,14 +64,22 @@ let unfocusCube = (cubeSerial) => {
     //unfocus时并不取消该元素的可编辑性
     let textCubes = document.getElementsByClassName('textCube');
     nowEditingFile = Number(nowEditingFile);
-    nowEditingCube = Number(nowEditingCube);
-    textCubes[cubeSerial].getElementsByClassName('inlineEditBar')[0].style.display = 'none';
-    textCubes[cubeSerial].getElementsByClassName('highLighted')[0].style.display = 'none';
+    if (nowEditingCube!=null) {
+        nowEditingCube = Number(nowEditingCube);
+        textCubes[cubeSerial].getElementsByClassName('inlineEditBar')[0].style.display = 'none';
+        textCubes[cubeSerial].getElementsByClassName('highLighted')[0].style.display = 'none';
+    }else{
+        return
+    }
 }
 
 let focusCube = (cubeSerial) => {
     nowEditingFile = Number(nowEditingFile);
-    nowEditingCube = Number(nowEditingCube);
+    if (nowEditingCube) {
+        nowEditingCube = Number(nowEditingCube);
+    }
+    console.log(nowEditingCube)
+    console.log(cubeSerial)
     if (nowEditingCube != cubeSerial) {
         unfocusCube(nowEditingCube);
         let textCubes = document.getElementsByClassName('textCube');
@@ -87,7 +97,9 @@ let focusCube = (cubeSerial) => {
 
 let saveToFile = (text) => {
     nowEditingFile = Number(nowEditingFile);
-    nowEditingCube = Number(nowEditingCube);
+    if (nowEditingCube) {
+        nowEditingCube = Number(nowEditingCube);
+    }
     Files[nowEditingFile].contents[nowEditingCube] = text;
 }
 
@@ -95,7 +107,9 @@ let changeToMark = (target) => {
     //将html重新转回md源文件
     let cubeId = target.parentNode.dataset.cubeId
     nowEditingFile = Number(nowEditingFile);
-    nowEditingCube = Number(nowEditingCube);
+    if (nowEditingCube) {
+        nowEditingCube = Number(nowEditingCube);
+    }
 
     target.innerHTML = '';
     target.innerText = Files[nowEditingFile].contents[cubeId];
@@ -109,10 +123,15 @@ let callFocusCube = (e) => {
         target = target.parentNode;
     }
     console.log(target)
+    console.log(target.parentNode)
     let number = target.parentNode.dataset.cubeId;
+    console.log(number)
+    console.log(nowEditingCube)
     let textCubes = document.getElementsByClassName('textCube');
     nowEditingFile = Number(nowEditingFile);
-    nowEditingCube = Number(nowEditingCube);
+    if (nowEditingCube) {
+        nowEditingCube = Number(nowEditingCube);
+    }
     if (target.contentEditable == 'false') {
         // console.log('enen');
         focusCube(number);
@@ -126,8 +145,10 @@ let callFocusCube = (e) => {
             changeToMark(target);
         }
     } else {
-        if (document.getElementsByClassName('typeCube')[nowEditingCube].contentEditable == 'true') {
-            saveToFile(document.getElementsByClassName('typeCube')[nowEditingCube].innerText);
+        console.log(nowEditingCube)
+        if (nowEditingCube) {
+            if(document.getElementsByClassName('typeCube')[nowEditingCube].contenteditable == 'true')
+                saveToFile(document.getElementsByClassName('typeCube')[nowEditingCube].innerText);
             // console.log('yes')
         }
         focusCube(number);
@@ -192,8 +213,6 @@ let addTextCube = (serialNumber, content = '') => {
     let textArea = document.getElementById('textArea');
     let splitAreas = document.getElementsByClassName('splitArea');
     let textCubes = document.getElementsByClassName('textCube');
-    nowEditingFile = Number(nowEditingFile);
-    nowEditingCube = Number(nowEditingCube);
 
     Files[nowEditingFile].contents.splice(serialNumber, 0, '');
 
@@ -229,15 +248,21 @@ let addCubeInLine = (e, directe = null) => {
     let target = e.target;
     let snumber;
     nowEditingFile = Number(nowEditingFile);
-    nowEditingCube = Number(nowEditingCube);
+
+    if (nowEditingCube) {
+        nowEditingCube = Number(nowEditingCube);
+    }
     if (target.className == 'addCubeBtn') {
         snumber = target.parentNode.dataset.splitId;
         // console.log(snumber);
     }
-    if (snumber <= nowEditingCube) {
+
+    if (snumber <= nowEditingCube && nowEditingCube) {
         nowEditingCube++;
     }
+
     addTextCube(snumber);
+    console.log(nowEditingCube);
 
     console.log(Files[nowEditingFile].contents);
 }
@@ -255,7 +280,9 @@ let moveUpCube = (e, directe = null) => {
     }
     let textCubes = document.getElementsByClassName('textCube');
     nowEditingFile = Number(nowEditingFile);
-    nowEditingCube = Number(nowEditingCube);
+    if (nowEditingCube) {
+        nowEditingCube = Number(nowEditingCube);
+    }
     if (thisTextCube.dataset.cubeId == 0) {
         return
     } else {
@@ -291,7 +318,9 @@ let moveDownCube = (e, directe = null) => {
     }
     let textCubes = document.getElementsByClassName('textCube');
     nowEditingFile = Number(nowEditingFile);
-    nowEditingCube = Number(nowEditingCube);
+    if (nowEditingCube) {
+        nowEditingCube = Number(nowEditingCube);
+    }
     if (thisTextCube.dataset.cubeId == textCubes.length - 1) {
         // console.log('last cube')
         return
@@ -324,7 +353,9 @@ let copyCube = (e, directe = null) => {
         target = document.getElementsByClassName('textCube')[directe]
     }
     nowEditingFile = Number(nowEditingFile);
-    nowEditingCube = Number(nowEditingCube);
+    if (nowEditingCube) {
+        nowEditingCube = Number(nowEditingCube);
+    }
 
     console.log(nowEditingCube)
     Files[nowEditingFile].contents.splice(nowEditingCube, 0, Files[nowEditingFile].contents[nowEditingCube]);
@@ -349,9 +380,11 @@ let deleteCube = (e, directe = null) => {
     let textCubes = document.getElementsByClassName('textCube');
     let splitAreas = document.getElementsByClassName('splitArea');
     nowEditingFile = Number(nowEditingFile);
-    nowEditingCube = Number(nowEditingCube);
+    if (nowEditingCube) {
+        nowEditingCube = Number(nowEditingCube);
+    }
 
-    console.log(nowEditingCube)
+
     Files[nowEditingFile].contents.splice(nowEditingCube, 1);
 
     for (let i = cubeId + 1; i < textCubes.length; i++) {
@@ -363,16 +396,18 @@ let deleteCube = (e, directe = null) => {
     splitAreas[cubeId + 1].remove();
     target.remove();
     nowEditingCube = null;
-
+    console.log(nowEditingCube)
     console.log(Files[nowEditingFile].contents);
 }
 
 let runCode = (e, directe = null) => {
 
     nowEditingFile = Number(nowEditingFile);
-    nowEditingCube = Number(nowEditingCube);
+    if (nowEditingCube) {
+        nowEditingCube = Number(nowEditingCube);
+    }
     let target;
-    if (directe ==null) {
+    if (directe == null) {
         target = e.target;
         target = target.parentNode.parentNode;
     } else {
@@ -380,9 +415,10 @@ let runCode = (e, directe = null) => {
     }
     let originText = target.getElementsByClassName('typeCube')[0].innerText;
 
-    Files[nowEditingFile].contents[target.dataset.cubeId] = originText;
-    if (originText.contentEditable!='false') {
+
+    if (target.getElementsByClassName('typeCube')[0].contentEditable != 'false') {
         //待改
+        Files[nowEditingFile].contents[target.dataset.cubeId] = originText;
         let transText = md.render(originText);
         target.getElementsByClassName('typeCube')[0].innerHTML = transText;
         target.getElementsByClassName('typeCube')[0].contentEditable = 'false';
@@ -410,13 +446,15 @@ let ifFopOpen = [false, false, false];
 let imgsrc = ['img/arrow_up.svg', 'img/arrow_down.svg', 'img/content_copy.svg', 'img/delete.svg', 'img/play_arrow.svg']
 let clickEvents = [moveUpCube, moveDownCube, copyCube, deleteCube, runCode]
 let cloc = 0;//双击时钟记录
+let topEIcon = document.getElementsByClassName('topEdit');
+let leftSideBar = document.getElementById('leftSideBar');
+let timeStop1, timeStop2;
 
 //==================================⬆变/常量/定义⬇执行/监听语句=========================
 
 firstTimeInitialize();
 
-let topEIcon = document.getElementsByClassName('topEdit');
-let Icon
+
 console.log(topEIcon);
 topEIcon[0].addEventListener('click', () => {
     clickEvents[0]('', nowEditingCube);
@@ -434,58 +472,84 @@ topEIcon[4].addEventListener('click', () => {
     clickEvents[4]('', nowEditingCube);
 })
 
-    document.body.onmousedown = (e) => {
-        if (e.target.id != 'fileName') {
-            if (haveClickedFileInput) {
-                haveClickedFileInput = false;
-                Files[nowEditingFile].fileName = fileName.value;//修改记录的文件名
-                console.log("已保存标题", Files[nowEditing].fileName);
-            }
-        } else {
-            haveClickedFileInput = true;
+leftSideBar.onmouseover = function (e) {
+    let target = e.target;
+    let tempWidth = 50;
+    clearInterval(timeStop2)
+    timeStop1 = setInterval(function () {
+        if (tempWidth == 240) {
+            clearInterval(timeStop1);
         }
-        if (e.target.className == 'options') {
-            console.log(e.target.id);
-            let target = e.target;
-            let numOfOption = 0;
-            while (target != null) {
-                target = target.previousSibling;
-                numOfOption++;
-                //获取当前选项是第几个
-            }
-            numOfOption = numOfOption / 2;
-            let opall = document.querySelectorAll('.optionAll');
-            //二级菜单栏列表
-            let ops = document.querySelectorAll('.options');
-            //一级菜单列表
-            console.log(numOfOption);
-            if (ifFopOpen[numOfOption]) {
-                //如果点击菜单栏时该菜单栏是开启状态，则关闭所有菜单栏
-                ifFopOpen = [false, false, false];
-                ifFopOpen[numOfOption] = false;
-                for (let i = 0; i < 3; i++) {
-                    opall[i].style.display = 'none';
-                    ops[i].style.cssText = '';
-                }
-                console.log('close')
-            } else {
-                //如果点击菜单栏时该菜单栏不是打开状态，则关闭其他菜单栏，打开该菜单栏
-                ifFopOpen = [false, false, false];
-                ifFopOpen[numOfOption] = true;
-                for (let i = 0; i < 3; i++) {
-                    opall[i].style.display = 'none';
-                    ops[i].style.cssText = '';
+        tempWidth += 5;
+        target.style.width = tempWidth + 'px';
+    }, 1)
+}
 
-                }
-                e.target.style.cssText = `
-            background-color: white;
-            border-radius: 0;
-            border: 1px solid #dadada;
-            box-shadow: 0px -4px 10px 0px rgba(0,0,0,0.2);
-            `
-                console.log(e.target.parentNode);
-                opall[numOfOption - 1].style.display = 'flex';
-                console.log('open')
+leftSideBar.onmouseleave = function (e) {
+    let target = e.target;
+    let tempWidth = target.clientWidth;
+    clearInterval(timeStop1);
+    timeStop2 = setInterval(function () {
+        if (tempWidth == 50) {
+            clearInterval(timeStop2);
+        }
+        tempWidth -= 5;
+        target.style.width = tempWidth + 'px';
+    }, 1)
+}
+
+document.body.onmousedown = (e) => {
+    if (e.target.id != 'fileName') {
+        if (haveClickedFileInput) {
+            haveClickedFileInput = false;
+            Files[nowEditingFile].fileName = fileName.value;//修改记录的文件名
+            console.log("已保存标题", Files[nowEditing].fileName);
+        }
+    } else {
+        haveClickedFileInput = true;
+    }
+    if (e.target.className == 'options') {
+        console.log(e.target.id);
+        let target = e.target;
+        let numOfOption = 0;
+        while (target != null) {
+            target = target.previousSibling;
+            numOfOption++;
+            //获取当前选项是第几个
+        }
+        numOfOption = numOfOption / 2;
+        let opall = document.querySelectorAll('.optionAll');
+        //二级菜单栏列表
+        let ops = document.querySelectorAll('.options');
+        //一级菜单列表
+        console.log(numOfOption);
+        if (ifFopOpen[numOfOption]) {
+            //如果点击菜单栏时该菜单栏是开启状态，则关闭所有菜单栏
+            ifFopOpen = [false, false, false];
+            ifFopOpen[numOfOption] = false;
+            for (let i = 0; i < 3; i++) {
+                opall[i].style.display = 'none';
+                ops[i].style.cssText = '';
             }
+            console.log('close')
+        } else {
+            //如果点击菜单栏时该菜单栏不是打开状态，则关闭其他菜单栏，打开该菜单栏
+            ifFopOpen = [false, false, false];
+            ifFopOpen[numOfOption] = true;
+            for (let i = 0; i < 3; i++) {
+                opall[i].style.display = 'none';
+                ops[i].style.cssText = '';
+
+            }
+            e.target.style.cssText = `
+        background-color: white;
+        border-radius: 0;
+        border: 1px solid #dadada;
+        box-shadow: 0px -4px 10px 0px rgba(0,0,0,0.2);
+        `
+            console.log(e.target.parentNode);
+            opall[numOfOption - 1].style.display = 'flex';
+            console.log('open')
         }
     }
+}
