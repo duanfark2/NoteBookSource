@@ -60,15 +60,40 @@ let renderTheFileName = () => {
     fileName.value = Files[nowEditingFile].fileName;
 }
 
+let refreshCellID = () => {
+    let realCellID = document.getElementById('realCellID');
+    realCellID.innerText = nowEditingCube;
+    if (nowEditingCube == null)
+        realCellID.innerText = 'NO'
+}
+
+let renderTheFileList = () => {
+
+}
+
+let showFullList = () => {
+    let tTextLSB = document.getElementById('tTextLSB');
+    let titleinLSB = document.getElementById('titleinLSB');
+    tTextLSB.style.display = 'flex';
+    titleinLSB.style.width = '200px';
+}
+
+let hideFileList = () => {
+    let tTextLSB = document.getElementById('tTextLSB');
+    let titleinLSB = document.getElementById('titleinLSB');
+    tTextLSB.style.display = 'none';
+    titleinLSB.style.width = '30px';
+}
+
 let unfocusCube = (cubeSerial) => {
     //unfocus时并不取消该元素的可编辑性
     let textCubes = document.getElementsByClassName('textCube');
     nowEditingFile = Number(nowEditingFile);
-    if (nowEditingCube!=null) {
+    if (nowEditingCube != null) {
         nowEditingCube = Number(nowEditingCube);
         textCubes[cubeSerial].getElementsByClassName('inlineEditBar')[0].style.display = 'none';
         textCubes[cubeSerial].getElementsByClassName('highLighted')[0].style.display = 'none';
-    }else{
+    } else {
         return
     }
 }
@@ -147,12 +172,13 @@ let callFocusCube = (e) => {
     } else {
         console.log(nowEditingCube)
         if (nowEditingCube) {
-            if(document.getElementsByClassName('typeCube')[nowEditingCube].contenteditable == 'true')
+            if (document.getElementsByClassName('typeCube')[nowEditingCube].contenteditable == 'true')
                 saveToFile(document.getElementsByClassName('typeCube')[nowEditingCube].innerText);
             // console.log('yes')
         }
         focusCube(number);
     }
+    refreshCellID();
 }
 
 let initTextCube = (cubeId, content = '') => {
@@ -263,7 +289,7 @@ let addCubeInLine = (e, directe = null) => {
 
     addTextCube(snumber);
     console.log(nowEditingCube);
-
+    refreshCellID();
     console.log(Files[nowEditingFile].contents);
 }
 
@@ -302,6 +328,7 @@ let moveUpCube = (e, directe = null) => {
         textArea.insertBefore(splitAreas[cubeId], preTextCube);
         nowEditingCube--;
     }
+    refreshCellID();
     console.log(Files[nowEditingFile].contents);
 }
 
@@ -341,6 +368,7 @@ let moveDownCube = (e, directe = null) => {
         textArea.insertBefore(splitAreas[cubeId + 1], thisTextCube);
         nowEditingCube++;
     }
+    refreshCellID();
     console.log(Files[nowEditingFile].contents);
 }
 
@@ -398,6 +426,7 @@ let deleteCube = (e, directe = null) => {
     nowEditingCube = null;
     console.log(nowEditingCube)
     console.log(Files[nowEditingFile].contents);
+    refreshCellID();
 }
 
 let runCode = (e, directe = null) => {
@@ -435,6 +464,8 @@ let firstTimeInitialize = () => {
     addTextCube(0);
     renderTheFileName();
     focusCube(0);
+    refreshCellID();
+
 }
 
 let fileName = document.getElementById('fileName');
@@ -473,29 +504,39 @@ topEIcon[4].addEventListener('click', () => {
 })
 
 leftSideBar.onmouseover = function (e) {
-    let target = e.target;
-    let tempWidth = 50;
-    clearInterval(timeStop2)
-    timeStop1 = setInterval(function () {
-        if (tempWidth == 240) {
-            clearInterval(timeStop1);
-        }
-        tempWidth += 5;
-        target.style.width = tempWidth + 'px';
-    }, 1)
+    let target = document.getElementById('leftSideBar');
+    clearInterval(timeStop2);
+    timeStop2 = null
+    if (!timeStop1) {
+        timeStop1 = setInterval(function () {
+            target.style.width = target.clientWidth + 5 + 'px';
+            if (target.clientWidth >= 240) {
+                clearInterval(timeStop1);
+                timeStop1 = null;
+                target.style.width = 240 + 'px';
+                showFullList();
+            }
+        }, 1)
+    }
 }
 
 leftSideBar.onmouseleave = function (e) {
-    let target = e.target;
-    let tempWidth = target.clientWidth;
+    let target = document.getElementById('leftSideBar');
     clearInterval(timeStop1);
-    timeStop2 = setInterval(function () {
-        if (tempWidth == 50) {
-            clearInterval(timeStop2);
-        }
-        tempWidth -= 5;
-        target.style.width = tempWidth + 'px';
-    }, 1)
+    timeStop1 = null;
+    if (!timeStop2) {
+        hideFileList();
+        timeStop2 = setInterval(function () {
+            target.style.width = target.clientWidth - 5 + 'px';
+            if (target.clientWidth <= 50) {
+                clearInterval(timeStop2);
+                timeStop2 = null;
+                target.style.width = 50 + 'px';
+                hideFileList();
+            }
+
+        }, 1)
+    }
 }
 
 document.body.onmousedown = (e) => {
