@@ -230,7 +230,7 @@ body{
     flex-direction: row;
     justify-content: flex-start;
     align-items: center;
-
+    user-select: none;
 }
 
 .option:hover{
@@ -290,6 +290,34 @@ body{
     height: 30px;
     line-height: 30px;
     width: 100px;
+}
+
+.certainFile{
+    display: flex;
+    margin-top: 10px;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 30px;
+    /*201px*/
+    border-radius: 6px;
+    /*box-shadow: 0 1px 4px 0px rgba(0, 0, 0, 0.4)*/
+}
+
+.fileID{
+    font-family: "Cascadia Mono";
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 30px;
+    height: 30px;
+
+}
+
+.fileName{
+    font-family: "微软雅黑 Light";
+    display: none;
+    padding-right: 6px;
 }
 
 #textArea{

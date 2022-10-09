@@ -7,12 +7,14 @@ let md = new MarkDownIt(`default`, {
     highlight: function (str, lang) {
         if (lang && hljs.getLanguage(lang)) {
             try {
-                console.log('<pre class="hljs"><code>' +
-                    hljs.highlight(str, {language: lang, ignoreIllegals: true}).value +
-                    '</code></pre>');
-                return '<pre class="hljs"><code>' +
-                    hljs.highlight(str, {language: lang, ignoreIllegals: true}).value +
-                    '</code></pre>';
+                console.log('<pre class="hljs"><code>' + hljs.highlight(str, {
+                    language: lang,
+                    ignoreIllegals: true
+                }).value + '</code></pre>');
+                return '<pre class="hljs"><code>' + hljs.highlight(str, {
+                    language: lang,
+                    ignoreIllegals: true
+                }).value + '</code></pre>';
             } catch (__) {
             }
         }
@@ -52,6 +54,19 @@ let initNewFile = (filename = "未命名.md") => {
     nowEditingCube = 0;
 }
 
+let initFileTag = (id, name) => {
+    let certainFile = document.createElement('div');
+    certainFile.className = 'certainFile';
+    certainFile.dataset.fileIndex = id;
+    certainFile.innerHTML =
+        `<div class="fileID">` + id + `
+            </div>
+            <div class="fileName">
+               ` + name + `
+            </div>`;
+    return certainFile;
+}
+
 let renderTheFileName = () => {
     nowEditingFile = Number(nowEditingFile);
     if (nowEditingCube) {
@@ -63,26 +78,57 @@ let renderTheFileName = () => {
 let refreshCellID = () => {
     let realCellID = document.getElementById('realCellID');
     realCellID.innerText = nowEditingCube;
-    if (nowEditingCube == null)
-        realCellID.innerText = 'NO'
+    if (nowEditingCube == null) realCellID.innerText = 'NO'
 }
 
 let renderTheFileList = () => {
+    let filein;
+    let leftSideBar = document.getElementById('leftSideBar');
+    for (filein in Files){
+        let fileTag = initFileTag(filein,Files[filein].fileName);
+        leftSideBar.append(fileTag);
+    }
+    renderTheHlFl();
+}
 
+let renderTheHlFl = () => {
+    let certainFiles = document.getElementsByClassName('certainFile');
+    let theFile = certainFiles[nowEditingFile];
+    theFile.style.boxShadow = '0 1px 4px 0px rgba(0, 0, 0, 0.4)';
+}
+
+let refreshFileInfo = () => {
+    let certainFiles = document.getElementsByClassName('certainFile');
+    let fileName = certainFiles[nowEditingCube].getElementsByClassName('fileName')[0]
+    fileName.innerHTML = Files[nowEditingFile].fileName;
 }
 
 let showFullList = () => {
     let tTextLSB = document.getElementById('tTextLSB');
     let titleinLSB = document.getElementById('titleinLSB');
+    let certainFiles = document.getElementsByClassName('certainFile');
+    let fileNames = document.getElementsByClassName('fileName');
+    let index;
     tTextLSB.style.display = 'flex';
     titleinLSB.style.width = '200px';
+    for (index = 0; index < certainFiles.length; index++) {
+        certainFiles[index].style.width = '201px';
+        fileNames[index].style.display = 'flex';
+    }
 }
 
 let hideFileList = () => {
     let tTextLSB = document.getElementById('tTextLSB');
     let titleinLSB = document.getElementById('titleinLSB');
+    let certainFiles = document.getElementsByClassName('certainFile');
+    let fileNames = document.getElementsByClassName('fileName');
+    let index;
     tTextLSB.style.display = 'none';
     titleinLSB.style.width = '30px';
+    for (index = 0; index < certainFiles.length; index++) {
+        certainFiles[index].style.width = '30px';
+        fileNames[index].style.display = 'none';
+    }
 }
 
 let unfocusCube = (cubeSerial) => {
@@ -172,8 +218,7 @@ let callFocusCube = (e) => {
     } else {
         console.log(nowEditingCube)
         if (nowEditingCube) {
-            if (document.getElementsByClassName('typeCube')[nowEditingCube].contenteditable == 'true')
-                saveToFile(document.getElementsByClassName('typeCube')[nowEditingCube].innerText);
+            if (document.getElementsByClassName('typeCube')[nowEditingCube].contenteditable == 'true') saveToFile(document.getElementsByClassName('typeCube')[nowEditingCube].innerText);
             // console.log('yes')
         }
         focusCube(number);
@@ -281,6 +326,8 @@ let addCubeInLine = (e, directe = null) => {
     if (target.className == 'addCubeBtn') {
         snumber = target.parentNode.dataset.splitId;
         // console.log(snumber);
+    }else if(target.className == 'option'){
+        snumber = nowEditingCube+1;
     }
 
     if (snumber <= nowEditingCube && nowEditingCube) {
@@ -465,7 +512,7 @@ let firstTimeInitialize = () => {
     renderTheFileName();
     focusCube(0);
     refreshCellID();
-
+    renderTheFileList();
 }
 
 let fileName = document.getElementById('fileName');
@@ -503,6 +550,18 @@ topEIcon[4].addEventListener('click', () => {
     clickEvents[4]('', nowEditingCube);
 })
 
+document.getElementById('op4').onclick = (e) =>{
+    addCubeInLine(e)
+}
+
+document.getElementById('op5').onclick = () =>{
+    moveUpCube('',nowEditingCube);
+}
+
+document.getElementById('op6').onclick = () =>{
+    moveDownCube('',nowEditingCube);
+}
+
 leftSideBar.onmouseover = function (e) {
     let target = document.getElementById('leftSideBar');
     clearInterval(timeStop2);
@@ -539,12 +598,15 @@ leftSideBar.onmouseleave = function (e) {
     }
 }
 
+
+
 document.body.onmousedown = (e) => {
     if (e.target.id != 'fileName') {
         if (haveClickedFileInput) {
             haveClickedFileInput = false;
             Files[nowEditingFile].fileName = fileName.value;//修改记录的文件名
             console.log("已保存标题", Files[nowEditing].fileName);
+            refreshFileInfo();//暂定
         }
     } else {
         haveClickedFileInput = true;
