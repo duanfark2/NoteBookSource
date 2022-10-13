@@ -301,7 +301,12 @@ body{
     width: 30px;
     /*201px*/
     border-radius: 6px;
+    cursor: default;
     /*box-shadow: 0 1px 4px 0px rgba(0, 0, 0, 0.4)*/
+}
+
+.certainFile:hover{
+    background-color: rgba(169, 169, 169, 0.24);
 }
 
 .fileID{
