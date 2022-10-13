@@ -52,6 +52,7 @@ let initNewFile = (filename = "未命名.md") => {
 
     nowEditingFile = Files.length - 1;
     nowEditingCube = 0;
+    // console.log(Files);
 }
 
 let initFileTag = (id, name) => {
@@ -64,6 +65,7 @@ let initFileTag = (id, name) => {
             <div class="fileName">
                ` + name + `
             </div>`;
+    certainFile.onclick = changeCuFile;
     return certainFile;
 }
 
@@ -81,15 +83,32 @@ let refreshCellID = () => {
     if (nowEditingCube == null) realCellID.innerText = 'NO'
 }
 
+window.ClearFileList = () => {
+    let certainFiles = document.getElementsByClassName('certainFile');
+
+    while (certainFiles[0]) {
+        certainFiles[0].remove();
+    }
+    // for (let i = 0; i < length; i++) {
+    //     console.log(i,certainFiles[i]);
+    //     // console.log(certainFiles[i]);
+    //     certainFiles[i].remove();
+    // }错误方法 由于certainFiles对象会变化
+}
+
 let renderTheFileList = () => {
     let filein;
     let leftSideBar = document.getElementById('leftSideBar');
-    for (filein in Files){
-        let fileTag = initFileTag(filein,Files[filein].fileName);
-        leftSideBar.append(fileTag);
+    // leftSideBar.innerHTML = '';
+    window.ClearFileList();
+    for (let i = 0; i < Files.length; i++) {
+        let fileTag = initFileTag(i, Files[i].fileName);
+        // console.log(fileTag);
+        leftSideBar.appendChild(fileTag);
     }
     renderTheHlFl();
 }
+
 
 let renderTheHlFl = () => {
     let certainFiles = document.getElementsByClassName('certainFile');
@@ -98,6 +117,7 @@ let renderTheHlFl = () => {
 }
 
 let refreshFileInfo = () => {
+    //已实现：更新文件名；待实现：更新文件属性与署名
     let certainFiles = document.getElementsByClassName('certainFile');
     let fileName = certainFiles[nowEditingCube].getElementsByClassName('fileName')[0]
     fileName.innerHTML = Files[nowEditingFile].fileName;
@@ -117,6 +137,37 @@ let showFullList = () => {
     }
 }
 
+let changeCuFile = (e)=>{
+    //在左侧更换文件时的callback
+    let target = e.target
+    while (target.className != 'certainFile'){
+        target = target.parentNode;
+    }
+    let cuNumber = Number(target.dataset.fileIndex);
+    console.log(cuNumber);
+    let certainFiles = document.getElementsByClassName('certainFile');
+    let theFile = certainFiles[nowEditingFile];
+    theFile.style.boxShadow = '';
+    saveAllCubes();
+    nowEditingFile = cuNumber;
+    replaceTextArea();
+    renderTheHlFl();
+}
+
+let replaceTextArea = ()=>{
+    //把TextArea清空后，把新Files里的内容渲染进去
+    let childInTA = document.getElementById('textArea').childNodes;
+    let contents = Files[nowEditingFile].contents
+    let typeCubes = document.getElementsByClassName('typeCube');
+    while(childInTA[0]){
+        childInTA[0].remove();
+    }
+    for(let cubeID in contents){
+        addTextCube(cubeID);
+        typeCubes[cubeID].innerText = contents[cubeID];
+    }
+}
+
 let hideFileList = () => {
     let tTextLSB = document.getElementById('tTextLSB');
     let titleinLSB = document.getElementById('titleinLSB');
@@ -129,6 +180,18 @@ let hideFileList = () => {
         certainFiles[index].style.width = '30px';
         fileNames[index].style.display = 'none';
     }
+}
+
+let addAFile = () => {
+    //10.10待改bug
+    //保存上一文件的所有内容，新建一个文件对象并放进Files数组中，根据文件内容render文件列表、标题、textArea、（右边栏）
+    saveAllCubes();
+    initNewFile();
+    renderTheFileList();
+    renderTheFileName();
+    Files[nowEditingFile].contents.push('');
+    replaceTextArea();
+    focusCube(0);
 }
 
 let unfocusCube = (cubeSerial) => {
@@ -149,8 +212,8 @@ let focusCube = (cubeSerial) => {
     if (nowEditingCube) {
         nowEditingCube = Number(nowEditingCube);
     }
-    console.log(nowEditingCube)
-    console.log(cubeSerial)
+    // console.log(nowEditingCube)
+    // console.log(cubeSerial)
     if (nowEditingCube != cubeSerial) {
         unfocusCube(nowEditingCube);
         let textCubes = document.getElementsByClassName('textCube');
@@ -167,11 +230,21 @@ let focusCube = (cubeSerial) => {
 }
 
 let saveToFile = (text) => {
+    //保存nowEditingCube的内容
     nowEditingFile = Number(nowEditingFile);
     if (nowEditingCube) {
         nowEditingCube = Number(nowEditingCube);
     }
     Files[nowEditingFile].contents[nowEditingCube] = text;
+}
+
+let saveAllCubes = () => {
+    let typeCubes = document.getElementsByClassName('typeCube');
+    for (let index = 0; index < typeCubes.length; index++) {
+        if(typeCubes[index].contentEditable == 'true'){
+            Files[nowEditingFile].contents[index] = typeCubes[index].innerText;
+        }
+    }
 }
 
 let changeToMark = (target) => {
@@ -193,11 +266,11 @@ let callFocusCube = (e) => {
     while (target.className != 'typeCube') {
         target = target.parentNode;
     }
-    console.log(target)
-    console.log(target.parentNode)
+    // console.log(target)
+    // console.log(target.parentNode)
     let number = target.parentNode.dataset.cubeId;
-    console.log(number)
-    console.log(nowEditingCube)
+    // console.log(number)
+    // console.log(nowEditingCube)
     let textCubes = document.getElementsByClassName('textCube');
     nowEditingFile = Number(nowEditingFile);
     if (nowEditingCube) {
@@ -217,8 +290,10 @@ let callFocusCube = (e) => {
         }
     } else {
         console.log(nowEditingCube)
-        if (nowEditingCube) {
-            if (document.getElementsByClassName('typeCube')[nowEditingCube].contenteditable == 'true') saveToFile(document.getElementsByClassName('typeCube')[nowEditingCube].innerText);
+        if (nowEditingCube != null) {
+            if (document.getElementsByClassName('typeCube')[nowEditingCube].contentEditable == 'true')
+                console.log('dd')
+                saveToFile(document.getElementsByClassName('typeCube')[nowEditingCube].innerText);
             // console.log('yes')
         }
         focusCube(number);
@@ -279,13 +354,14 @@ let initSplitArea = (serialNumber) => {
 }
 
 let addTextCube = (serialNumber, content = '') => {
-    //增加textcube：在序号位置前增加一个分割线，后增加textcube，检测是否未最后一个textcube，是则增加最后一个
+    //增加textcube：在序号位置前增加一个分割线，后增加textcube，检测是否未最后一个textcube，是则增加最后一个(仅负责DOM)
     serialNumber = Number(serialNumber);
     let textArea = document.getElementById('textArea');
     let splitAreas = document.getElementsByClassName('splitArea');
     let textCubes = document.getElementsByClassName('textCube');
 
-    Files[nowEditingFile].contents.splice(serialNumber, 0, '');
+    // Files[nowEditingFile].contents.splice(serialNumber, 0, '');对文件的操作交给各上层函数
+    // console.log(Files[nowEditingFile].contents);
 
     if (!textCubes[serialNumber]) {
         // console.log('yes');
@@ -326,18 +402,20 @@ let addCubeInLine = (e, directe = null) => {
     if (target.className == 'addCubeBtn') {
         snumber = target.parentNode.dataset.splitId;
         // console.log(snumber);
-    }else if(target.className == 'option'){
-        snumber = nowEditingCube+1;
+    } else if (target.className == 'option') {
+        snumber = nowEditingCube + 1;
     }
+
+    Files[nowEditingFile].contents.splice(snumber, 0, '');
 
     if (snumber <= nowEditingCube && nowEditingCube) {
         nowEditingCube++;
     }
 
     addTextCube(snumber);
-    console.log(nowEditingCube);
+    // console.log(nowEditingCube);
     refreshCellID();
-    console.log(Files[nowEditingFile].contents);
+    // console.log(Files[nowEditingFile].contents);
 }
 
 let moveUpCube = (e, directe = null) => {
@@ -432,8 +510,9 @@ let copyCube = (e, directe = null) => {
         nowEditingCube = Number(nowEditingCube);
     }
 
-    console.log(nowEditingCube)
-    Files[nowEditingFile].contents.splice(nowEditingCube, 0, Files[nowEditingFile].contents[nowEditingCube]);
+    // console.log(nowEditingCube)
+    console.log(Files[nowEditingFile].contents);
+    Files[nowEditingFile].contents.splice(nowEditingCube+1, 0, Files[nowEditingFile].contents[nowEditingCube]);
 
     let textInLast = target.getElementsByClassName('typeCube')[0].innerText;
     snumber = Number(target.dataset.cubeId);
@@ -444,9 +523,11 @@ let copyCube = (e, directe = null) => {
 
 let deleteCube = (e, directe = null) => {
     let target;
-    if (directe == null) {
+    if(e=='' && directe==null){
+        return;
+    }else if (directe == null) {
         target = e.target;
-        console.log(e)
+        console.log(e);
         target = target.parentNode.parentNode;
     } else {
         target = document.getElementsByClassName('textCube')[directe];
@@ -508,6 +589,7 @@ let firstTimeInitialize = () => {
     //2没有则新建一个空文件并render
     //3具体render：将文件名填入顶框；将文件列表显示在左侧栏；在中间内容新建一个文本框并focus；更新右边栏序号；
     initNewFile();
+    Files[nowEditingFile].contents.push('');
     addTextCube(0);
     renderTheFileName();
     focusCube(0);
@@ -527,13 +609,14 @@ let cloc = 0;//双击时钟记录
 let topEIcon = document.getElementsByClassName('topEdit');
 let leftSideBar = document.getElementById('leftSideBar');
 let timeStop1, timeStop2;
+window.Files = Files;
 
 //==================================⬆变/常量/定义⬇执行/监听语句=========================
 
 firstTimeInitialize();
 
 
-console.log(topEIcon);
+// console.log(topEIcon);
 topEIcon[0].addEventListener('click', () => {
     clickEvents[0]('', nowEditingCube);
 })
@@ -550,16 +633,18 @@ topEIcon[4].addEventListener('click', () => {
     clickEvents[4]('', nowEditingCube);
 })
 
-document.getElementById('op4').onclick = (e) =>{
+document.getElementById('op1').onclick = addAFile;
+
+document.getElementById('op4').onclick = (e) => {
     addCubeInLine(e)
 }
 
-document.getElementById('op5').onclick = () =>{
-    moveUpCube('',nowEditingCube);
+document.getElementById('op5').onclick = () => {
+    moveUpCube('', nowEditingCube);
 }
 
-document.getElementById('op6').onclick = () =>{
-    moveDownCube('',nowEditingCube);
+document.getElementById('op6').onclick = () => {
+    moveDownCube('', nowEditingCube);
 }
 
 leftSideBar.onmouseover = function (e) {
@@ -597,7 +682,6 @@ leftSideBar.onmouseleave = function (e) {
         }, 1)
     }
 }
-
 
 
 document.body.onmousedown = (e) => {
