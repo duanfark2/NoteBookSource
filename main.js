@@ -583,7 +583,7 @@ let runCode = (e, directe = null) => {
     console.log(Files[nowEditingFile].contents);
 }
 
-function GetQueryString(name)
+window.GetQueryString = (name)=>
 {
     var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
     var r = window.location.search.substring(1).match(reg);
@@ -591,11 +591,11 @@ function GetQueryString(name)
 }
 
 let getSessions = ()=>{
-    if(GetQueryString('userID')){
-        UserID = GetQueryString('userID')
+    if(window.GetQueryString('userID')){
+        UserID = window.GetQueryString('userID')
     }
-    if(GetQueryString('userName')){
-        UserName = GetQueryString('userName')
+    if(window.GetQueryString('userName')){
+        UserName = window.GetQueryString('userName')
     }
 }
 
