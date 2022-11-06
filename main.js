@@ -137,10 +137,10 @@ let showFullList = () => {
     }
 }
 
-let changeCuFile = (e)=>{
+let changeCuFile = (e) => {
     //在左侧更换文件时的callback
     let target = e.target
-    while (target.className != 'certainFile'){
+    while (target.className != 'certainFile') {
         target = target.parentNode;
     }
     let cuNumber = Number(target.dataset.fileIndex);
@@ -154,15 +154,15 @@ let changeCuFile = (e)=>{
     renderTheHlFl();
 }
 
-let replaceTextArea = ()=>{
+let replaceTextArea = () => {
     //把TextArea清空后，把新Files里的内容渲染进去
     let childInTA = document.getElementById('textArea').childNodes;
     let contents = Files[nowEditingFile].contents
     let typeCubes = document.getElementsByClassName('typeCube');
-    while(childInTA[0]){
+    while (childInTA[0]) {
         childInTA[0].remove();
     }
-    for(let cubeID in contents){
+    for (let cubeID in contents) {
         addTextCube(cubeID);
         typeCubes[cubeID].innerText = contents[cubeID];
     }
@@ -241,7 +241,7 @@ let saveToFile = (text) => {
 let saveAllCubes = () => {
     let typeCubes = document.getElementsByClassName('typeCube');
     for (let index = 0; index < typeCubes.length; index++) {
-        if(typeCubes[index].contentEditable == 'true'){
+        if (typeCubes[index].contentEditable == 'true') {
             Files[nowEditingFile].contents[index] = typeCubes[index].innerText;
         }
     }
@@ -293,7 +293,7 @@ let callFocusCube = (e) => {
         if (nowEditingCube != null) {
             if (document.getElementsByClassName('typeCube')[nowEditingCube].contentEditable == 'true')
                 console.log('dd')
-                saveToFile(document.getElementsByClassName('typeCube')[nowEditingCube].innerText);
+            saveToFile(document.getElementsByClassName('typeCube')[nowEditingCube].innerText);
             // console.log('yes')
         }
         focusCube(number);
@@ -512,7 +512,7 @@ let copyCube = (e, directe = null) => {
 
     // console.log(nowEditingCube)
     console.log(Files[nowEditingFile].contents);
-    Files[nowEditingFile].contents.splice(nowEditingCube+1, 0, Files[nowEditingFile].contents[nowEditingCube]);
+    Files[nowEditingFile].contents.splice(nowEditingCube + 1, 0, Files[nowEditingFile].contents[nowEditingCube]);
 
     let textInLast = target.getElementsByClassName('typeCube')[0].innerText;
     snumber = Number(target.dataset.cubeId);
@@ -523,9 +523,9 @@ let copyCube = (e, directe = null) => {
 
 let deleteCube = (e, directe = null) => {
     let target;
-    if(e=='' && directe==null){
+    if (e == '' && directe == null) {
         return;
-    }else if (directe == null) {
+    } else if (directe == null) {
         target = e.target;
         console.log(e);
         target = target.parentNode.parentNode;
@@ -583,23 +583,23 @@ let runCode = (e, directe = null) => {
     console.log(Files[nowEditingFile].contents);
 }
 
-window.GetQueryString = (name)=>
-{
-    var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
-    var r = window.location.search.substring(1).match(reg);
-    if(r!=null)return  unescape(r[2]); return null;
+window.GetQueryString = (name) => {
+    let reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+    let r = decodeURIComponent(window.location.search).substring(1).match(reg);
+    if (r != null) return unescape(r[2]);
+    return null
 }
 
-let getSessions = ()=>{
-    if(window.GetQueryString('userID')){
+let getSessions = () => {
+    if (window.GetQueryString('userID')) {
         UserID = window.GetQueryString('userID')
     }
-    if(window.GetQueryString('userName')){
+    if (window.GetQueryString('userName')) {
         UserName = window.GetQueryString('userName')
     }
 }
 
-let setProfile = () =>{
+let setProfile = () => {
     let icon = document.getElementById('icon')
     icon.innerText = UserID[0];
     let username = document.getElementById('username')
