@@ -84,13 +84,48 @@ body{
     border: 1px solid darkgray;
 }
 
+#profile{
+    width: 160px;
+    height: 40px;
+    position: absolute;
+    right: 20px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    box-sizing: border-box;
+    padding: 5px 8px;
+    align-items: center;
+    border-radius: 8px;
+    border: 1px solid darkgray;
+}
+
+#icon{
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width:  30px;
+    height: 30px;
+    border-radius: 15px;
+    background: linear-gradient(to top, #db36a4, #f7ff00);
+}
+
+#username{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: "微软雅黑";
+    font-size: 14px;
+    width: 100px;
+}
+
 #topEditBar{
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
     align-items: center;
     position: absolute;
-    right: 20px;
+    right: 200px;
     /*width: 250px;*/
     height: 30px;
     border: 1px solid darkgray;
@@ -107,8 +142,6 @@ body{
     border-left: 1px solid darkgray;
     cursor: pointer;
 }
-
-
 
 #topMoveUp{
     border: 0px;

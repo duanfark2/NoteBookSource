@@ -583,6 +583,29 @@ let runCode = (e, directe = null) => {
     console.log(Files[nowEditingFile].contents);
 }
 
+function GetQueryString(name)
+{
+    var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
+    var r = window.location.search.substring(1).match(reg);
+    if(r!=null)return  unescape(r[2]); return null;
+}
+
+let getSessions = ()=>{
+    if(GetQueryString('userID')){
+        UserID = GetQueryString('userID')
+    }
+    if(GetQueryString('userName')){
+        UserName = GetQueryString('userName')
+    }
+}
+
+let setProfile = () =>{
+    let icon = document.getElementById('icon')
+    icon.innerText = UserID[0];
+    let username = document.getElementById('username')
+    username.innerText = UserName;
+}
+
 let firstTimeInitialize = () => {
     //第一次打开时需要进行的初始化工作
     //1检查文件对象数组中是否有对象，若有则根据数组进行render（由于没有后端可省略）
@@ -595,6 +618,8 @@ let firstTimeInitialize = () => {
     focusCube(0);
     refreshCellID();
     renderTheFileList();
+    getSessions();
+    setProfile();
 }
 
 let fileName = document.getElementById('fileName');
@@ -602,6 +627,8 @@ let nowEditingFile = null;//当前正在编辑的文件索引
 let nowEditingCube = null;//当前正在编辑的文本框序号
 let nowEditing = 0;//已废弃的变量，原指当前正在编辑的文件索引
 let haveClickedFileInput = false;//是否点击了文件命名框
+let UserID = 'U'
+let UserName = '未知用户'
 let ifFopOpen = [false, false, false];
 let imgsrc = ['img/arrow_up.svg', 'img/arrow_down.svg', 'img/content_copy.svg', 'img/delete.svg', 'img/play_arrow.svg']
 let clickEvents = [moveUpCube, moveDownCube, copyCube, deleteCube, runCode]
